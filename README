@@ -1,0 +1,46 @@
+********* Parsing example **********
+
+struct bit_cfg *bc;
+struct parser_msg *imsg;
+
+bc = cpos_init("cpos_cfg");
+if (!bc)
+  return;
+  
+imsg = parser_get_data_init();
+if (!imsg)
+  return;
+  
+if (parser_get_data(bc, imsg, iso8583_messages))
+  return;
+  
+for (int i = 0; i < ISO_BIT_LEN; i++) {
+  if (imsg[i].data)
+    printf("BIT [%d] [%s]\n", i, imsg[i].data);
+}
+
+parser_get_data_free(imsg);
+cpos_close(bc);
+
+
+********** Build example *************
+
+struct bit_cfg *bc;
+struct build_msg *bm;
+
+bc = cpos_init("cpos_cfg");
+if (!bc)
+  return;
+  
+bm = build_init();
+if (!bm)
+  return;
+  
+build_element(bm, 7, "0118105707", 10);
+build_element(bm, 11, 00000100, 8);
+build_element(bm, 39, "00", 2);
+build_element(bm, 70, "001", 3);
+build_msg(bc, bm, "0810", buffer, buffer_length);
+
+build_free(bm);
+cpos_close(bc);
