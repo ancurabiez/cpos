@@ -52,8 +52,10 @@ uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
 
 /// Return 1 if error
 /// f flag [0 check] [1 get]
-uint8_t parser_check_get_data(const uint8_t *msg, const uint8_t *bitmap,
-        const uint8_t f, uint8_t *buf, const uint16_t blen, const uint8_t bit)
+uint8_t parser_check_get_data(struct bit_cfg *bc, const uint8_t *msg,
+		                      const uint8_t *bitmap, const uint8_t f,
+		                      uint8_t *buf, const uint16_t blen,
+		                      const uint8_t bit)
 {
   uint8_t i = 1, flag = 0, bitm = 64;
   uint16_t len = 0;
@@ -72,7 +74,7 @@ uint8_t parser_check_get_data(const uint8_t *msg, const uint8_t *bitmap,
 
   for (; i < bitm; i++) {
     if (*(bitmap + i) == '1') {
-      len = utils_get_element_cfg(i + 1, &flag);
+      len = utils_get_element_cfg(bc, i + 1, &flag);
 
       if (!flag) { //fixed length
         if (((i +1) == bit) && f) {
@@ -137,7 +139,8 @@ void parser_get_data_free(struct parser_msg *imsg)
 }
 
 // return 1 if error
-uint8_t parser_get_data(struct parser_msg *imsg, uint8_t *msg)
+uint8_t parser_get_data(struct bit_cfg *bc, struct parser_msg *imsg,
+		                uint8_t *msg)
 {
   uint8_t bitmap[128];
   uint8_t buf[1024];
@@ -152,7 +155,7 @@ uint8_t parser_get_data(struct parser_msg *imsg, uint8_t *msg)
       return 1;
 
   for (i = 0; i < ISO_BIT_LEN; i++) {
-    if (!parser_check_get_data(msg, &bitmap[0], 1, 
+    if (!parser_check_get_data(bc, msg, &bitmap[0], 1, 
                    buf, sizeof(buf), i)) {
       imsg[i].data = strdup((char*) buf);
     } else {

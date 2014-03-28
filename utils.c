@@ -15,52 +15,52 @@
 #include "cpos.h"
 
 
-static struct bit_cfg__ *ELEMENT_CFG;
-
 
 // return 1 if error
 // return 2 if file cfg error
-uint8_t cpos_init(const char *cfg_file)
+struct bit_cfg* cpos_init(const char *cfg_file)
 {
   FILE *f;
   char buf[16];
   uint16_t i = 0;
+  struct bit_cfg *bc;
   
-  ELEMENT_CFG = calloc(ISO_BIT_LEN, sizeof(struct bit_cfg__));
-  if (!ELEMENT_CFG)
-    return 1;
+  bc = calloc(ISO_BIT_LEN, sizeof(struct bit_cfg));
+  if (!bc)
+    return NULL;
   
   f = fopen(cfg_file, "r");
   if (!f) {
-    free(ELEMENT_CFG);
-    return 2;
+    free(bc);
+    return NULL;
   }
   
   while (fgets(buf, sizeof(buf), f)) {
     if (buf[0] != '{')
       continue;
     
-    ELEMENT_CFG[i].flag =  atoi(buf +1);
-    ELEMENT_CFG[i].len = atoi(buf + 3);
+    bc[i].flag =  atoi(buf +1);
+    bc[i].len = atoi(buf + 3);
         
     i++;
   }
   
   fclose(f);
-  return 0;
+  return bc;
 }
 
-void cpos_close()
+void cpos_close(struct bit_cfg *bc)
 {
-  free(ELEMENT_CFG);
+  free(bc);
 }
 
-inline uint16_t utils_get_element_cfg(const uint8_t bit, uint8_t *flag)
+inline uint16_t utils_get_element_cfg(struct bit_cfg *bc,
+		                              const uint8_t bit, uint8_t *flag)
 {
   uint16_t len = 0;
   
-  len = (*(ELEMENT_CFG + (bit -1))).len;
-  *flag = (*(ELEMENT_CFG + (bit -1))).flag;
+  len = (*(bc + (bit -1))).len;
+  *flag = (*(bc + (bit -1))).flag;
   
   return len;
 }

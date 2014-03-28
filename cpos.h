@@ -21,8 +21,7 @@ extern "C" {
 
 #define ISO_BIT_LEN 129
 
-/* Private struct */
-struct bit_cfg__ {
+struct bit_cfg {
   uint8_t flag; // (0 fixed length)
   uint16_t len;
 };
@@ -41,32 +40,27 @@ struct parser_msg {
 
 
 /* Private */
-inline uint16_t utils_get_element_cfg(const uint8_t bit, uint8_t *flag);
+inline uint16_t utils_get_element_cfg(struct bit_cfg *,
+		const uint8_t bit, uint8_t *flag);
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 
 
 /* Public initialitation */
-uint8_t cpos_init(const char *);
-void cpos_close();
+struct bit_cfg* cpos_init(const char *);
+void cpos_close(struct bit_cfg *);
 
 /* Public Parser */
-uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
-                          uint8_t *bitmap, const uint16_t blen);
-uint8_t parser_check_get_data(const uint8_t *msg, const uint8_t *bitmap,
-                              const uint8_t f, uint8_t *buf,
-                              const uint16_t blen, const uint8_t bit);
-
 struct parser_msg* parser_get_data_init();
 void parser_get_data_free(struct parser_msg *);
-uint8_t parser_get_data(struct parser_msg *, uint8_t *);
+uint8_t parser_get_data(struct bit_cfg *, struct parser_msg *, uint8_t *);
 
 /* Public Build */
 uint8_t build_element(struct build_msg *, const uint8_t,
                       const void *, size_t);
 struct build_msg* build_init(void);
 void build_free(struct build_msg *);
-uint8_t* build_msg(struct build_msg *, const char *,
+uint8_t* build_msg(struct bit_cfg *, struct build_msg *, const char *,
                    void *, size_t, uint8_t);
 
 /* Public socket */

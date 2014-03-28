@@ -92,8 +92,9 @@ uint8_t build_element(struct build_msg *be, const uint8_t bit,
 }
 
 // return NULL if header error
-uint8_t* build_msg(struct build_msg *be, const char *mti,
-                   void *buf, size_t blen, uint8_t header)
+uint8_t* build_msg(struct bit_cfg *bc, struct build_msg *be,
+		           const char *mti, void *buf, size_t blen,
+		           uint8_t header)
 {
   uint8_t bitmap[128];
   uint8_t i, bitmap_len = 0;
@@ -114,7 +115,7 @@ uint8_t* build_msg(struct build_msg *be, const char *mti,
   
   for (i = 0; i < ISO_BIT_LEN; i++) {
     if (be[i].bit != 0) {
-      len = utils_get_element_cfg(i +1, &flag);
+      len = utils_get_element_cfg(bc, i +1, &flag);
       
       if (flag == 0) {// fixed len
         memcpy(buf, be[i].data, len);
