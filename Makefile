@@ -10,3 +10,6 @@ dynamic:
 	$(CC) -shared -o libcpos.so $(OBJECTS) $(LIBS)
 clean:
 	rm -vfr *~ *.o
+install:
+	cp *.so /usr/lib
+	cp *.h /usr/include
