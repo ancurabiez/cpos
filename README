@@ -1,18 +1,18 @@
 ********* Parsing example **********
 
-struct bit_cfg *bc;
-struct parser_msg *imsg;
+struct isofield_cfg *ifield;
+struct isomsg *imsg;
 int i;
 
-bc = cpos_init("cpos.cfg");
-if (!bc)
+ifield = cpos_init("cpos.cfg");
+if (!ifield)
   return;
   
-imsg = parser_get_data_init();
+imsg = cpos_parse_init();
 if (!imsg)
   return;
   
-if (parser_get_data(bc, imsg, ISO8583_MESSAGES))
+if (cpos_parse(ifield, imsg, ISO8583_MESSAGES))
   return;
   
 for (i = 0; i < ISO_BIT_LEN; i++) {
@@ -20,36 +20,36 @@ for (i = 0; i < ISO_BIT_LEN; i++) {
     printf("BIT [%d] [%s]\n", i, imsg[i].data);
 }
 
-parser_get_data_free(imsg);
+cpos_parse_free(imsg);
 cpos_close(bc);
 
 
 ********** Build example *************
 
-struct bit_cfg *bc;
-struct build_msg *bm;
+struct isofiled_cfg *ifield;
+struct isomsg *imsg;
 char buffer[128];
 
-bc = cpos_init("cpos.cfg");
-if (!bc)
+ifield = cpos_init("cpos.cfg");
+if (!ifield)
   return;
   
-bm = build_init();
-if (!bm)
+imsg = cpos_build_init();
+if (!imsg)
   return;
 
-build_element(bm, 7, "0118105707", 10);
-build_element(bm, 11, "00000100", 8);
-build_element(bm, 39, "00", 2);
-build_element(bm, 70, "001", 3);
+cpos_build_set_field(bm, 7, "0118105707", 10);
+cpos_build_set_field(bm, 11, "00000100", 8);
+cpos_build_set_field(bm, 39, "00", 2);
+cpos_build_set_field(bm, 70, "001", 3);
 
 /* build without length header */
-build_msg(bc, bm, "0810", buffer, sizeof(buffer), 0);
+cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 0);
 printf("Build without len: [%s]\n", buffer);
 
 /* build with length header */
-build_msg(bc, bm, "0810", buffer, sizeof(buffer), 1);
+cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 1);
 printf("Build with len: [%s]\n", buffer);
 
-build_free(bm);
-cpos_close(bc);
+cpos_build_free(imsg);
+cpos_close(ifield);

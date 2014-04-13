@@ -15,7 +15,7 @@
 #include "cpos.h"
 
 
-static uint8_t build_bitmap(struct build_msg *be,
+static uint8_t build_bitmap(struct isomsg *be,
                uint8_t *buf, size_t buflen)
 {
   uint8_t i, t = 0;
@@ -50,18 +50,18 @@ static uint8_t build_bitmap(struct build_msg *be,
 }
 
 //return NULL if error
-struct build_msg* build_init(void)
+struct isomsg* cpos_build_init(void)
 {
-  struct build_msg *be;
+  struct isomsg *be;
   
-  be = (struct build_msg*) calloc(ISO_BIT_LEN, sizeof(struct build_msg));
+  be = (struct isomsg*) calloc(ISO_BIT_LEN, sizeof(struct isomsg));
   if (!be)
     return NULL;
   
   return be;
 }
 
-void build_free(struct build_msg *be)
+void cpos_build_free(struct isomsg *be)
 {
   uint8_t i;
   
@@ -74,7 +74,7 @@ void build_free(struct build_msg *be)
 }
 
 // return 1 if error
-uint8_t build_element(struct build_msg *be, const uint8_t bit,
+uint8_t cpos_build_set_field(struct isomsg *be, const uint8_t bit,
                       const void *data, size_t data_len)
 {
   if ((bit <= 1) || (bit > 128))
@@ -92,7 +92,7 @@ uint8_t build_element(struct build_msg *be, const uint8_t bit,
 }
 
 // return NULL if header error
-uint8_t* build_msg(struct bit_cfg *bc, struct build_msg *be,
+uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
 		           const char *mti, void *buf, size_t blen,
 		           uint8_t header)
 {
@@ -115,7 +115,7 @@ uint8_t* build_msg(struct bit_cfg *bc, struct build_msg *be,
   
   for (i = 0; i < ISO_BIT_LEN; i++) {
     if (be[i].bit != 0) {
-      len = utils_get_element_cfg(bc, i +1, &flag);
+      len = utils_get_field_cfg(bc, i +1, &flag);
       
       if (flag == 0) {// fixed len
         memcpy(buf, be[i].data, len);

@@ -18,14 +18,14 @@
 
 // return 1 if error
 // return 2 if file cfg error
-struct bit_cfg* cpos_init(const char *cfg_file)
+struct isofield_cfg* cpos_init(const char *cfg_file)
 {
   FILE *f;
   char buf[16];
   uint16_t i = 0;
-  struct bit_cfg *bc;
+  struct isofield_cfg *bc;
   
-  bc = calloc(ISO_BIT_LEN, sizeof(struct bit_cfg));
+  bc = calloc(ISO_BIT_LEN, sizeof(struct isofield_cfg));
   if (!bc)
     return NULL;
   
@@ -49,12 +49,12 @@ struct bit_cfg* cpos_init(const char *cfg_file)
   return bc;
 }
 
-void cpos_close(struct bit_cfg *bc)
+void cpos_close(struct isofield_cfg *bc)
 {
   free(bc);
 }
 
-inline uint16_t utils_get_element_cfg(struct bit_cfg *bc,
+inline uint16_t utils_get_field_cfg(struct isofield_cfg *bc,
 		                              const uint8_t bit, uint8_t *flag)
 {
   uint16_t len = 0;

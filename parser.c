@@ -16,7 +16,7 @@
 /// Return 1 if error
 /// flag : 0 primary bitmap
 ///        1 secondary bitmap
-uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
+static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
                           uint8_t *bitmap, const uint16_t blen)
 {
   uint8_t f[3];
@@ -52,7 +52,7 @@ uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
 
 /// Return 1 if error
 /// f flag [0 check] [1 get]
-uint8_t parser_check_get_data(struct bit_cfg *bc, const uint8_t *msg,
+static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg,
 		                      const uint8_t *bitmap, const uint8_t f,
 		                      uint8_t *buf, const uint16_t blen,
 		                      const uint8_t bit)
@@ -74,7 +74,7 @@ uint8_t parser_check_get_data(struct bit_cfg *bc, const uint8_t *msg,
 
   for (; i < bitm; i++) {
     if (*(bitmap + i) == '1') {
-      len = utils_get_element_cfg(bc, i + 1, &flag);
+      len = utils_get_field_cfg(bc, i + 1, &flag);
 
       if (!flag) { //fixed length
         if (((i +1) == bit) && f) {
@@ -116,18 +116,18 @@ uint8_t parser_check_get_data(struct bit_cfg *bc, const uint8_t *msg,
 }
 
 //return NULL if error
-struct parser_msg* parser_get_data_init()
+struct isomsg* cpos_parse_init()
 {
-  struct parser_msg *imsg;
+  struct isomsg *imsg;
   
-  imsg = (struct parser_msg *) calloc(ISO_BIT_LEN, sizeof(struct parser_msg));
+  imsg = calloc(ISO_BIT_LEN, sizeof(struct isomsg));
   if (!imsg)
     return NULL;
   
   return imsg;
 }
 
-void parser_get_data_free(struct parser_msg *imsg)
+void cpos_parse_free(struct isomsg *imsg)
 {
   uint8_t i;
   
@@ -139,7 +139,7 @@ void parser_get_data_free(struct parser_msg *imsg)
 }
 
 // return 1 if error
-uint8_t parser_get_data(struct bit_cfg *bc, struct parser_msg *imsg,
+uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
 		                uint8_t *msg)
 {
   uint8_t bitmap[128];
