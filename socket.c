@@ -19,7 +19,7 @@
 #include <errno.h>
 
 
-int socket_non_blocking(int sfd)
+int cpos_socket_non_blocking(int sfd)
 {
   int flags, s;
 
@@ -41,7 +41,7 @@ int socket_non_blocking(int sfd)
 
 // blocking 1
 // non blocking 0
-int socket_bind(uint16_t port, uint8_t blocking)
+int cpos_socket_bind(uint16_t port, uint8_t blocking)
 {
   struct sockaddr_in serv;
   int sock, i;
@@ -57,7 +57,7 @@ int socket_bind(uint16_t port, uint8_t blocking)
   serv.sin_port = htons(port);
   
   if (!blocking) {
-    i = socket_non_blocking(sock);
+    i = cpos_socket_non_blocking(sock);
     assert (i != -1);
   }
 
@@ -74,7 +74,7 @@ int socket_bind(uint16_t port, uint8_t blocking)
   return sock;
 }
 
-int socket_connect(const char *ip, uint16_t port, uint8_t blocking)
+int cpos_socket_connect(const char *ip, uint16_t port, uint8_t blocking)
 {
   struct sockaddr_in cli;
   int sock, i;
@@ -95,7 +95,7 @@ int socket_connect(const char *ip, uint16_t port, uint8_t blocking)
   }
 
   if (!blocking) {
-    i = socket_non_blocking(sock);
+    i = cpos_socket_non_blocking(sock);
     assert (i != -1);
   }
 
@@ -108,7 +108,7 @@ int socket_connect(const char *ip, uint16_t port, uint8_t blocking)
   return sock;
 }
 
-int socket_recv(int sock, void *buf, int buflen)
+int cpos_socket_recv(int sock, void *buf, int buflen)
 {
   int size;
   uint16_t bytesleft = 0;
@@ -138,7 +138,7 @@ int socket_recv(int sock, void *buf, int buflen)
   return size;
 }
 
-int socket_send(int sock, void *msg, int msglen)
+int cpos_socket_send(int sock, void *msg, int msglen)
 {
   int size = 0;
   
