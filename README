@@ -8,7 +8,7 @@ ifield = cpos_init("cpos.cfg");
 if (!ifield)
   return;
   
-imsg = cpos_parse_init();
+imsg = cpos_parse_new();
 if (!imsg)
   return;
   
@@ -21,7 +21,7 @@ for (i = 0; i < ISO_BIT_LEN; i++) {
 }
 
 cpos_parse_free(imsg);
-cpos_close(bc);
+cpos_close(ifield);
 
 
 ********** Build example *************
@@ -34,14 +34,14 @@ ifield = cpos_init("cpos.cfg");
 if (!ifield)
   return;
   
-imsg = cpos_build_init();
+imsg = cpos_build_new();
 if (!imsg)
   return;
 
-cpos_build_set_field(bm, 7, "0118105707", 10);
-cpos_build_set_field(bm, 11, "00000100", 8);
-cpos_build_set_field(bm, 39, "00", 2);
-cpos_build_set_field(bm, 70, "001", 3);
+cpos_build_set_field(imsg, 7, "0118105707", 10);
+cpos_build_set_field(imsg, 11, "00000100", 8);
+cpos_build_set_field(imsg, 39, "00", 2);
+cpos_build_set_field(imsg, 70, "001", 3);
 
 /* build without length header */
 cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 0);

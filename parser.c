@@ -55,7 +55,7 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
 static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg,
 		                      const uint8_t *bitmap, const uint8_t f,
 		                      uint8_t *buf, const uint16_t blen,
-		                      const uint8_t bit)
+		                      const uint8_t bit, uint16_t *datalen)
 {
   uint8_t i = 1, flag = 0, bitm = 64;
   uint16_t len = 0;
@@ -79,8 +79,6 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
       if (!flag) { //fixed length
         if (((i +1) == bit) && f) {
           memcpy(buf, msg, len);
-          *(buf + len) = '\0';
-          
           break;
         }
         
@@ -94,8 +92,6 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
         
         if (((i +1) == bit) && f) {
           memcpy(buf, msg, len);
-          *(buf + len) = '\0';
-          
           break;
         }
         
@@ -108,6 +104,9 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
     if (*msg != '\0')
       return 1;
   } else {
+	*datalen = len;
+	*(buf + len) = '\0';
+	
     if (!(*buf))
       return 1;
   }
@@ -116,7 +115,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
 }
 
 //return NULL if error
-struct isomsg* cpos_parse_init()
+struct isomsg* cpos_parse_new()
 {
   struct isomsg *imsg;
   
@@ -144,7 +143,7 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
 {
   uint8_t bitmap[128];
   uint8_t buf[1024];
-  uint16_t i;
+  uint16_t i, datalen;
    
   memset(bitmap, 0, 128);
 
@@ -156,11 +155,12 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
 
   for (i = 0; i < ISO_BIT_LEN; i++) {
     if (!parser_check_get_data(bc, msg, &bitmap[0], 1, 
-                   buf, sizeof(buf), i)) {
-      imsg[i].data = strdup((char*) buf);
-    } else {
+                   buf, sizeof(buf), i, &datalen)) {
+      imsg[i].data = malloc(datalen + 1);
+      if (imsg[i].data)
+        memcpy(imsg[i].data, buf, datalen + 1);
+    } else
       imsg[i].data = NULL;
-    }
   }
   
   return 0;

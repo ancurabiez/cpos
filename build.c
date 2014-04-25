@@ -50,7 +50,7 @@ static uint8_t build_bitmap(struct isomsg *be,
 }
 
 //return NULL if error
-struct isomsg* cpos_build_init(void)
+struct isomsg* cpos_build_new(void)
 {
   struct isomsg *be;
   
@@ -84,6 +84,9 @@ uint8_t cpos_build_set_field(struct isomsg *be, const uint8_t bit,
     be[bit - 1].bit = bit;
     be[bit - 1].data_len = data_len;
     be[bit - 1].data = malloc(data_len + 1);
+    if (!be[bit -1].data)
+      return 1;
+    
     memcpy(be[bit - 1].data, data, data_len);  
   } else
     return 1;

@@ -44,13 +44,13 @@ uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 struct isofield_cfg* cpos_init(const char *);
 void cpos_close(struct isofield_cfg *);
 
-/* Public Parsing */
-struct isomsg* cpos_parse_init();
+/* Public Parse */
+struct isomsg* cpos_parse_new();
 void cpos_parse_free(struct isomsg *);
 uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *);
 
 /* Public Build */
-struct isomsg* cpos_build_init(void);
+struct isomsg* cpos_build_new(void);
 void cpos_build_free(struct isomsg *);
 uint8_t cpos_build_set_field(struct isomsg *, const uint8_t,
                       const void *, size_t);
