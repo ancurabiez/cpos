@@ -104,37 +104,14 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
     if (*msg != '\0')
       return 1;
   } else {
-	*datalen = len;
-	*(buf + len) = '\0';
-	
+    *datalen = len;
+    *(buf + len) = '\0';
+    
     if (!(*buf))
       return 1;
   }
     
   return 0;
-}
-
-//return NULL if error
-struct isomsg* cpos_parse_new()
-{
-  struct isomsg *imsg;
-  
-  imsg = calloc(ISO_BIT_LEN, sizeof(struct isomsg));
-  if (!imsg)
-    return NULL;
-  
-  return imsg;
-}
-
-void cpos_parse_free(struct isomsg *imsg)
-{
-  uint8_t i;
-  
-  for (i = 0; i < ISO_BIT_LEN; i++)
-    if (imsg[i].data)
-      free(imsg[i].data); 
-  
-  free(imsg);
 }
 
 // return 1 if error
@@ -157,8 +134,11 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
     if (!parser_check_get_data(bc, msg, &bitmap[0], 1, 
                    buf, sizeof(buf), i, &datalen)) {
       imsg[i].data = malloc(datalen + 1);
-      if (imsg[i].data)
-        memcpy(imsg[i].data, buf, datalen + 1);
+      if (!imsg[i].data)
+        return 1;
+      
+      memcpy(imsg[i].data, buf, datalen + 1);
+      imsg[i].len = datalen;
     } else
       imsg[i].data = NULL;
   }

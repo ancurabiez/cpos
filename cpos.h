@@ -27,8 +27,7 @@ struct isofield_cfg {
 };
 
 struct isomsg {
-  uint8_t bit;
-  size_t data_len;
+  uint16_t len;
   void *data;
 };
 
@@ -44,14 +43,14 @@ uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 struct isofield_cfg* cpos_init(const char *);
 void cpos_close(struct isofield_cfg *);
 
+/* Public constructor/destructor */
+struct isomsg* cpos_msg_new();
+void cpos_msg_free(struct isomsg *);
+
 /* Public Parse */
-struct isomsg* cpos_parse_new();
-void cpos_parse_free(struct isomsg *);
 uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *);
 
 /* Public Build */
-struct isomsg* cpos_build_new(void);
-void cpos_build_free(struct isomsg *);
 uint8_t cpos_build_set_field(struct isomsg *, const uint8_t,
                       const void *, size_t);
 uint8_t* cpos_build_msg(struct isofield_cfg *, struct isomsg *, const char *,
@@ -62,7 +61,7 @@ int cpos_socket_bind(uint16_t, uint8_t);
 int cpos_socket_connect(const char *, uint16_t, uint8_t);
 int cpos_socket_non_blocking(int);
 int cpos_socket_send(int, void *, int);
-int cpos_socket_recv(int, void *, int);
+int cpos_socket_recv(int, void *, int, uint16_t *);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-********* Parsing example **********
+********* Unpack example **********
 
 struct isofield_cfg *ifield;
 struct isomsg *imsg;
@@ -8,7 +8,7 @@ ifield = cpos_init("cpos.cfg");
 if (!ifield)
   return;
   
-imsg = cpos_parse_new();
+imsg = cpos_msg_new();
 if (!imsg)
   return;
   
@@ -17,10 +17,10 @@ if (cpos_parse(ifield, imsg, ISO8583_MESSAGES))
   
 for (i = 0; i < ISO_BIT_LEN; i++) {
   if (imsg[i].data)
-    printf("BIT [%d] [%s]\n", i, imsg[i].data);
+    printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, imsg[i].data);
 }
 
-cpos_parse_free(imsg);
+cpos_msg_free(imsg);
 cpos_close(ifield);
 
 
@@ -34,7 +34,7 @@ ifield = cpos_init("cpos.cfg");
 if (!ifield)
   return;
   
-imsg = cpos_build_new();
+imsg = cpos_msg_new();
 if (!imsg)
   return;
 
@@ -51,5 +51,5 @@ printf("Build without len: [%s]\n", buffer);
 cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 1);
 printf("Build with len: [%s]\n", buffer);
 
-cpos_build_free(imsg);
+cpos_msg_free(imsg);
 cpos_close(ifield);

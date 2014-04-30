@@ -54,6 +54,29 @@ void cpos_close(struct isofield_cfg *bc)
   free(bc);
 }
 
+//return NULL if error
+struct isomsg* cpos_msg_new()
+{
+  struct isomsg *imsg;
+  
+  imsg = calloc(ISO_BIT_LEN, sizeof(struct isomsg));
+  if (!imsg)
+    return NULL;
+  
+  return imsg;
+}
+
+void cpos_msg_free(struct isomsg *imsg)
+{
+  uint8_t i;
+  
+  for (i = 0; i < ISO_BIT_LEN; i++)
+    if (imsg[i].data)
+      free(imsg[i].data); 
+  
+  free(imsg);
+}
+
 inline uint16_t utils_get_field_cfg(struct isofield_cfg *bc,
 		                              const uint8_t bit, uint8_t *flag)
 {
