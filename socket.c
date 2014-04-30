@@ -108,10 +108,13 @@ int cpos_socket_connect(const char *ip, uint16_t port, uint8_t blocking)
   return sock;
 }
 
-int cpos_socket_recv(int sock, void *buf, int buflen)
+int cpos_socket_recv(int sock, void *buf, int buflen,
+		             uint16_t *datalen)
 {
   int size;
   uint16_t bytesleft = 0;
+  
+  *datalen = 0;
   
   // getting length (first 4 bytes)
   size = recv(sock, buf, 4, MSG_DONTWAIT);
@@ -121,7 +124,7 @@ int cpos_socket_recv(int sock, void *buf, int buflen)
   
   memset(buf + 4, '\0', 1);
   bytesleft = atoi((char*) buf); // msg length
-
+  
   if (bytesleft > buflen)
     return -1;
   
@@ -133,6 +136,7 @@ int cpos_socket_recv(int sock, void *buf, int buflen)
     
     bytesleft -= size;
     buf += size;
+    *datalen = *datalen + size;
   }
 
   return size;
