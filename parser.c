@@ -57,8 +57,8 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
 		                      uint8_t *buf, const uint16_t blen,
 		                      const uint8_t bit, uint16_t *datalen)
 {
-  uint8_t i = 1, flag = 0, bitm = 64;
-  uint16_t len = 0;
+  uint8_t i = 1, flag = 0, bitm = 64, format;
+  uint16_t len = 0, maxlen;
   uint8_t t[4];
   
   memset(t, 0, sizeof(t));
@@ -74,7 +74,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
 
   for (; i < bitm; i++) {
     if (*(bitmap + i) == '1') {
-      len = utils_get_field_cfg(bc, i + 1, &flag);
+      len = utils_get_field_cfg(bc, i + 1, &flag, &maxlen, &format);
 
       if (!flag) { //fixed length
         if (((i +1) == bit) && f) {
