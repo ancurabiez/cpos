@@ -21,9 +21,24 @@ extern "C" {
 
 #define ISO_BIT_LEN 129
 
+enum format {
+  LPS,
+#define LPS LPS
+  RPS,
+#define RPS RPS
+  LPZ,
+#define LPZ LPZ
+  RPZ,
+#define RPZ RPZ
+  NONE
+#define NONE NONE
+};
+
 struct isofield_cfg {
   uint8_t flag; // (0 fixed length)
   uint16_t len;
+  uint16_t maxlen;
+  uint8_t format;
 };
 
 struct isomsg {
@@ -34,10 +49,13 @@ struct isomsg {
 
 /* Private */
 inline uint16_t utils_get_field_cfg(struct isofield_cfg *,
-		const uint8_t bit, uint8_t *flag);
+		const uint8_t bit, uint8_t *flag, uint16_t *, uint8_t *);
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
+void* fill(const void* , uint16_t , uint16_t, uint8_t);
 
+/* Public utils */
+char* trim(const char *);
 
 /* Public initialitation */
 struct isofield_cfg* cpos_init(const char *);

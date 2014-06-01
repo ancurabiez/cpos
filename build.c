@@ -75,9 +75,10 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
 {
   uint8_t bitmap[128];
   uint8_t i, bitmap_len = 0;
-  uint8_t flag, len;
-  void *tmp;
-  
+  uint8_t flag, format;
+  uint16_t len, maxlen;
+  void *tmp, *f;
+    
   memset(bitmap, 0, 128);
   memset(buf, 0, blen);
 
@@ -92,19 +93,25 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
   
   for (i = 0; i < ISO_BIT_LEN; i++) {
     if (be[i].data) {
-      len = utils_get_field_cfg(bc, i +1, &flag);
+      len = utils_get_field_cfg(bc, i +1, &flag, &maxlen, &format);
       
       if (flag == 0) {// fixed len
-        memcpy(buf, be[i].data, len);
+      	f = fill(be[i].data, be[i].len, be[i].len, format);
+        memcpy(buf, f, len);
+        
         buf += len;
       }
       else { // dynamic len
-        sprintf((char*) buf, "%0*d", len, be[i].len);
+        sprintf((char*) buf, "%0*d", len, maxlen);
         buf += len;
         
-        memcpy(buf, be[i].data, be[i].len);
+        f = fill(be[i].data, be[i].len, maxlen, format);
+        memcpy(buf, f, maxlen);
+        
         buf += be[i].len;
       }
+      
+      free(f);
     }
   }
   
@@ -113,11 +120,11 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
     
     len = strlen((char*) tmp);
     
-    bb = malloc(len + 8);
+    bb = malloc(len + 5);
     if (!bb)
       return NULL;
     
-    memset(bb, 0, len + 8);
+    memset(bb, 0, len + 5);
         
     sprintf(bb, "%0*d%s", 4, len, (char*)tmp);
     buf = tmp;
