@@ -96,13 +96,19 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
       len = utils_get_field_cfg(bc, i +1, &flag, &maxlen, &format);
       
       if (flag == 0) {// fixed len
-      	f = fill(be[i].data, be[i].len, be[i].len, format);
+    	if (len < be[i].len)
+          len = be[i].len;
+    	
+      	f = fill(be[i].data, be[i].len, len, format);
         memcpy(buf, f, len);
-        
+    	        
         buf += len;
       }
       else { // dynamic len
-        sprintf((char*) buf, "%0*d", len, maxlen);
+    	if ((maxlen == 0) || (maxlen < be[i].len))
+          maxlen = be[i].len;
+    	       
+    	sprintf((char*) buf, "%0*d", len, maxlen);
         buf += len;
         
         f = fill(be[i].data, be[i].len, maxlen, format);

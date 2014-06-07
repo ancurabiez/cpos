@@ -135,7 +135,7 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
         else {
           l = strtol(tokenval, &ptr1, 10);
           
-          if (l > 999) {
+          if ((l > 999) || (l < 0)) {
 	        error__(line, tokencount, &bc);
             err = 1;
             break;
@@ -160,17 +160,18 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
           break;
         }
         
-    	if (l > 999) {
+    	if ((l > 999) || (l < 0) ||
+            ((l > 0) && (x == 0))) {
           error__(line, tokencount, &bc);
           err = 1;
           break;
     	}
     	
-    	if ((l == 0) && (x == 1)) {
-          error__(line, tokencount, &bc);
-          err = 1;
-          break;
-    	}
+    	//if ((l == 0) && (x == 1)) {
+        //  error__(line, tokencount, &bc);
+        //  err = 1;
+        //  break;
+    	//}
     	
     	bc[i].maxlen = l;
       }
