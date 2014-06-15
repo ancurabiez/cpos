@@ -55,7 +55,8 @@ uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 void* fill(const void* , uint16_t , uint16_t, uint8_t);
 
 /* Public utils */
-char* trim(const char *);
+char* space_trim(const char *);
+char* zero_trim(const char *);
 
 /* Public initialitation */
 struct isofield_cfg* cpos_init(const char *);

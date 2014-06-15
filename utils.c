@@ -19,7 +19,35 @@
 static const char const *format[] = {"LPS", "RPS", "LPZ", "RPZ", "NONE"};
 
 
-char* trim(const char* str)
+char* zero_trim(const char *str)
+{
+  char *buf;
+  int len;
+  
+  len = strlen(str);
+  
+  buf = malloc(len + 1);
+  if (!buf)
+    return NULL;
+  
+  while (*str) {
+    if (*str == '0') {
+      str++;
+      len--;
+      continue;
+    }
+    
+    break;
+  }
+  
+  memcpy(buf, str, len);
+  len++;
+  buf[len] = '\0';
+  
+  return buf;	
+}
+
+char* space_trim(const char* str)
 {
   char *buf;
   int len;
@@ -119,7 +147,7 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
       if (!subtoken)
         break;
            
-      tokenval = trim(subtoken);
+      tokenval = space_trim(subtoken);
       	
       if (tokencount == 1) {
 	    if (!strcmp(tokenval, "LLVAR")) {
