@@ -52,11 +52,15 @@ inline uint16_t utils_get_field_cfg(struct isofield_cfg *,
 		const uint8_t bit, uint8_t *flag, uint16_t *, uint8_t *);
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
-void* fill(const void* , uint16_t , uint16_t, uint8_t);
+void* utils_fill(const void* , uint16_t , uint16_t, uint8_t);
 
-/* Public utils */
-char* space_trim(const char *);
-char* zero_trim(const char *);
+/* Public utils (malloc(ed) must be freed)) */
+uint8_t* cpos_space_trim(const uint8_t *);
+uint8_t* cpos_zero_trim(const uint8_t *);
+uint8_t* cpos_ascii2hex(const uint8_t *);
+uint8_t* cpos_hex2ascii(const uint8_t *);
+uint8_t* cpos_ascii2ebcdic(const void *, size_t);
+uint8_t* cpos_ebcdic2ascii(const void *, size_t);
 
 /* Public initialitation */
 struct isofield_cfg* cpos_init(const char *);
@@ -67,7 +71,7 @@ struct isomsg* cpos_msg_new();
 void cpos_msg_free(struct isomsg *);
 
 /* Public Parse */
-uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *);
+uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *, uint16_t);
 
 /* Public Build */
 uint8_t cpos_build_set_field(struct isomsg *, const uint8_t,
