@@ -8,7 +8,7 @@
 int main(void)
 {
   int i;
-  int count = 10000;
+  int count = 100000;
   clock_t start, end;
   
   start = clock();

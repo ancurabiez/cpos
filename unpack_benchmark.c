@@ -7,7 +7,7 @@
 int main(void)
 {
   int i;
-  int count = 10000;
+  int count = 100000;
   char iso8583[512];
   clock_t start, end;
   
@@ -31,14 +31,13 @@ int main(void)
     if (!imsg)
       return 1;
     
-    if (cpos_parse(ifield, imsg, (uint8_t*) iso8583))
+    if (cpos_parse(ifield, imsg, (uint8_t*) iso8583, strlen(iso8583)))
       return 1;
     
     //for (i = 0; i < ISO_BIT_LEN; i++) {
-     // if (imsg[i].data)
-     //   printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, (char*)imsg[i].data);
-    //}
-
+    //  if (imsg[i].data)
+    //    printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, (char*)imsg[i].data);
+   // }
     cpos_msg_free(imsg);
   }
   

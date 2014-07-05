@@ -99,7 +99,7 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
     	if (len < be[i].len)
           len = be[i].len;
     	
-      	f = fill(be[i].data, be[i].len, len, format);
+      	f = utils_fill(be[i].data, be[i].len, len, format);
         memcpy(buf, f, len);
     	        
         buf += len;
@@ -111,7 +111,7 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
     	sprintf((char*) buf, "%0*d", len, maxlen);
         buf += len;
         
-        f = fill(be[i].data, be[i].len, maxlen, format);
+        f = utils_fill(be[i].data, be[i].len, maxlen, format);
         memcpy(buf, f, maxlen);
         
         buf += be[i].len;
