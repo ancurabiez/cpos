@@ -50,19 +50,16 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
   return 0;
 }
 
-/// Return 1 if error
-/// f flag [0 check] [1 get]
 static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg,
-		                      const uint8_t *bitmap, const uint8_t f,
-		                      uint8_t *buf, const uint16_t blen,
-		                      const uint8_t bit, uint16_t *datalen)
+                           const uint8_t *bitmap, const uint8_t f, uint8_t *buf)
 {
   uint8_t i = 1, flag = 0, bitm = 64, format;
   uint16_t len = 0, maxlen;
   uint8_t t[4];
+  uint16_t count = 0;
+  uint8_t *p = buf;
   
   memset(t, 0, sizeof(t));
-  memset(buf, 0, blen);
   
   msg += 4; // skip mti
   msg += 16; // skip primary bitmap
@@ -77,9 +74,15 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
       len = utils_get_field_cfg(bc, i + 1, &flag, &maxlen, &format);
 
       if (!flag) { //fixed length
-        if (((i +1) == bit) && f) {
-          memcpy(buf, msg, len);
-          break;
+        if (f) {
+          *(p + count) = i + 1;
+          count += 1;
+          
+          memcpy(p + count, msg, len);
+          count += len;
+          
+          memset(p + count, 0, 1);
+          count += 1;
         }
         
         msg += len;
@@ -90,37 +93,46 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
         msg += len;
         len = atoi((char*) t);
         
-        if (((i +1) == bit) && f) {
-          memcpy(buf, msg, len);
-          break;
+        if (f) {
+          *(p + count) = i + 1;
+          count += 1;
+          
+          memcpy(p + count, msg, len);
+          count += len;
+          
+          memset(p + count, 0, 1);
+          count += 1;
         }
         
         msg += len;
       } 
+    }
+    
+    if (f) {
+      if (i == (bitm -1)) {
+        if (*msg == '\0')
+          return 0;
+      } else {
+        if (*msg == '\0')
+          return 1;
+      }
     }
   }
 
   if (!f) {
     if (*msg != '\0')
       return 1;
-  } else {
-    *datalen = len;
-    *(buf + len) = '\0';
-    
-    if (!(*buf))
-      return 1;
   }
     
   return 0;
 }
 
-// return 1 if error
 uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
-		                uint8_t *msg)
+                   uint8_t *msg, uint16_t msglen)
 {
   uint8_t bitmap[128];
-  uint8_t buf[1024];
-  uint16_t i, datalen;
+  uint16_t len, c;
+  uint8_t *buf;
    
   memset(bitmap, 0, 128);
 
@@ -129,19 +141,35 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
   if (*(bitmap) == '1') // get sec bitmap if any
     if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)))
       return 1;
+  
+  buf = malloc(msglen + 1);
+  if (!buf)
+    return 1;
 
-  for (i = 0; i < ISO_BIT_LEN; i++) {
-    if (!parser_check_get_data(bc, msg, &bitmap[0], 1, 
-                   buf, sizeof(buf), i, &datalen)) {
-      imsg[i].data = malloc(datalen + 1);
-      if (!imsg[i].data)
-        return 1;
-      
-      memcpy(imsg[i].data, buf, datalen + 1);
-      imsg[i].len = datalen;
-    } else
-      imsg[i].data = NULL;
+  memset(buf, 0, msglen + 1);
+  
+  if (!parser_check_get_data(bc, msg, &bitmap[0], 1, buf))
+    return 1;
+  
+  uint8_t *p = buf;
+  
+  len = 0;
+  while (*p) {
+    c = *p;
+    p++;
+    
+    len = strlen((char*) p);
+    imsg[c].data = malloc(len + 1);
+    if (!imsg[c].data)
+      return 1;
+	        
+    memcpy(imsg[c].data, p, len + 1);
+    imsg[c].len = len;
+	      
+    p += (len +1);
   }
+  
+  free(buf);
   
   return 0;
 }
