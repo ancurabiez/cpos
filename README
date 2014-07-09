@@ -1,4 +1,4 @@
-CPOS is simple pack/unpack ISO-8583 message, there is no a,n,ans,etc formats.
+CPOS is a simple pack/unpack ISO-8583 message, there is no a,n,ans,etc formats.
 You can put ans in bit 4, or you can put s in bit 7.
 
 Compile:
