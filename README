@@ -1,55 +1,9 @@
-********* Unpack example **********
+CPOS is simple pack/unpack ISO-8583 message, there is no a,n,ans,etc formats.
+You can put ans in bit 4, or you can put s in bit 7.
 
-struct isofield_cfg *ifield;
-struct isomsg *imsg;
-int i;
+Compile:
+- make
+- make install
 
-ifield = cpos_init("cpos.cfg");
-if (!ifield)
-  return;
-  
-imsg = cpos_msg_new();
-if (!imsg)
-  return;
-  
-if (cpos_parse(ifield, imsg, ISO8583_MESSAGES))
-  return;
-  
-for (i = 0; i < ISO_BIT_LEN; i++) {
-  if (imsg[i].data)
-    printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, imsg[i].data);
-}
-
-cpos_msg_free(imsg);
-cpos_close(ifield);
-
-
-********** Build example *************
-
-struct isofiled_cfg *ifield;
-struct isomsg *imsg;
-char buffer[128];
-
-ifield = cpos_init("cpos.cfg");
-if (!ifield)
-  return;
-  
-imsg = cpos_msg_new();
-if (!imsg)
-  return;
-
-cpos_build_set_field(imsg, 7, "0118105707", 10);
-cpos_build_set_field(imsg, 11, "00000100", 8);
-cpos_build_set_field(imsg, 39, "00", 2);
-cpos_build_set_field(imsg, 70, "001", 3);
-
-/* build without length header */
-cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 0);
-printf("Build without len: [%s]\n", buffer);
-
-/* build with length header */
-cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 1);
-printf("Build with len: [%s]\n", buffer);
-
-cpos_msg_free(imsg);
-cpos_close(ifield);
+Usage:
+- See unpack_benchmark.c and build_benchmark.c
