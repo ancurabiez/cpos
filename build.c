@@ -53,19 +53,19 @@ uint8_t cpos_build_set_field(struct isomsg *be, const uint8_t bit,
                       const void *data, size_t data_len)
 {
   if ((bit <= 1) || (bit > 128))
-    return ERROR;
+    return CPOS_ERROR;
   
   if (!be[bit - 1].data) {
     be[bit - 1].len = data_len;
     be[bit - 1].data = malloc(data_len + 1);
     if (!be[bit -1].data)
-      return NOMEM;
+      return CPOS_NOMEM;
     
     memcpy(be[bit - 1].data, data, data_len);  
   } else
-    return ERROR;
+    return CPOS_ERROR;
   
-  return OK;
+  return CPOS_OK;
 }
 
 // return NULL if header error

@@ -33,7 +33,7 @@ int main(void)
       return 1;
     
     if (cpos_parse(ifield, imsg, (uint8_t*) iso8583,
-                    strlen(iso8583), &err) != OK) {
+                    strlen(iso8583), &err) != CPOS_OK) {
       printf(err);
       
       free(err);

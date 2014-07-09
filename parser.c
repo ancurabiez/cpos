@@ -38,7 +38,7 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
     f[2] = '\0';
 
     if (!utils_hex2bin(f, bin, sizeof(bin)))
-      return ERROR;
+      return CPOS_ERROR;
     
     memcpy(bitmap_tmp + t, bin, 8);
     
@@ -47,7 +47,7 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
   }
   
   memcpy(bitmap, bitmap_tmp, 64);
-  return OK;
+  return CPOS_OK;
 }
 
 static uint8_t parser_check_get_data(struct isofield_cfg *bc,
@@ -83,11 +83,11 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
           
         imsg[i + 1].data = strdup((char*) buf);
         if (!(imsg[i + 1].data))
-          return NOMEM;
+          return CPOS_NOMEM;
                    
         imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
         if (imsg[i + 1].len != len)
-          return LENERR;
+          return CPOS_LENERR;
                 
         msg += len;
       } else {
@@ -106,11 +106,11 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
  
         imsg[i + 1].data = strdup((char*) buf);
         if (!(imsg[i + 1].data))
-          return NOMEM;
+          return CPOS_NOMEM;
                    
         imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
         if (imsg[i + 1].len != len)
-          return LENERR;
+          return CPOS_LENERR;
                 
         msg += len;
       }
@@ -118,13 +118,13 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
   }
   
   if (count != msglen)
-    return ERROR;
+    return CPOS_ERROR;
   else if (count == msglen) {
     if (*msg == '\0')
-      return OK;
+      return CPOS_OK;
   }
   
-  return ERROR;
+  return CPOS_ERROR;
 }
 
 uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
@@ -135,17 +135,17 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
   
   memset(bitmap, 0, 128);
 
-  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != OK)
-    return ERROR;
+  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != CPOS_OK)
+    return CPOS_ERROR;
   if (*(bitmap) == '1') // get sec bitmap if any
-    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)) != OK)
-      return ERROR;
+    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)) != CPOS_OK)
+      return CPOS_ERROR;
   
   res = parser_check_get_data(bc, msg, msglen, &bitmap[0], imsg);
   *err = util_get_error(res);
   
-  if ((res != OK) || !(*err))
-    return ERROR;
+  if ((res != CPOS_OK) || !(*err))
+    return CPOS_ERROR;
 
-  return OK;
+  return CPOS_OK;
 }

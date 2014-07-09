@@ -22,10 +22,10 @@ struct error_lists {
   uint8_t erno;
   char strerr[32];
 } ELISTS [5] = {
-    {OK, "OK\n"},
-    {ERROR, "ERROR\n"},
-    {NOMEM, "Not enough memory\n"},
-    {LENERR, "Message length not match\n"}
+    {CPOS_OK, "OK\n"},
+    {CPOS_ERROR, "ERROR\n"},
+    {CPOS_NOMEM, "Not enough memory\n"},
+    {CPOS_LENERR, "Message length not match\n"}
 };
 
 /* ----------------------------------------------------------------------------------- */

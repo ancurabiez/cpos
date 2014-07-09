@@ -35,14 +35,14 @@ enum format {
 };
 
 enum error {
-  OK,
-#define OK OK
-  ERROR,
-#define ERROR ERROR
-  NOMEM,
-#define NOMEM NOMEM
-  LENERR,
-#define LENERR LENERR  
+  CPOS_OK,
+#define CPOS_OK CPOS_OK
+  CPOS_ERROR,
+#define CPOS_ERROR CPOS_ERROR
+  CPOS_NOMEM,
+#define CPOS_NOMEM CPOS_NOMEM
+  CPOS_LENERR,
+#define CPOS_LENERR CPOS_LENERR  
 };
 
 struct isofield_cfg {
