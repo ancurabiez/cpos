@@ -46,14 +46,9 @@ int main(void)
     cpos_build_set_field(imsg, 61, "1339617306680", 13);
     cpos_build_set_field(imsg, 103, "054201", 6);
 
-    /* build without length header */
-    cpos_build_msg(ifield, imsg, "0210", buffer, sizeof(buffer), 0);
-    //printf("Build without len: [%s]\n", buffer);
-
-    /* build with length header */
-    //cpos_build_msg(ifield, imsg, "0810", buffer, sizeof(buffer), 1);
-    //printf("Build with len: [%s]\n", buffer);
-
+    cpos_build_msg(ifield, imsg, "0210", buffer, sizeof(buffer));
+    //printf("Build message: [%s]\n", buffer);
+ 
     cpos_msg_free(imsg);
   }
   

@@ -10,6 +10,7 @@ int main(void)
   int count = 100000;
   char iso8583[512];
   clock_t start, end;
+  char *err;
   
   strcpy(iso8583, "0210F23E400188E0800800000000020000001647297"
 		  "0010113736588089100000000000011270413120360301113121"
@@ -31,14 +32,24 @@ int main(void)
     if (!imsg)
       return 1;
     
-    if (cpos_parse(ifield, imsg, (uint8_t*) iso8583, strlen(iso8583)))
+    if (cpos_parse(ifield, imsg, (uint8_t*) iso8583,
+                    strlen(iso8583), &err) != OK) {
+      printf(err);
+      
+      free(err);
+      cpos_msg_free(imsg);
+      cpos_close(ifield);
+      
       return 1;
+    }
     
     //for (i = 0; i < ISO_BIT_LEN; i++) {
-    //  if (imsg[i].data)
-    //    printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, (char*)imsg[i].data);
+   //   if (imsg[i].data)
+   //     printf("BIT [%d] [%d] [%s]\n", i, imsg[i].len, (char*)imsg[i].data);
    // }
+    
     cpos_msg_free(imsg);
+    free(err);
   }
   
   cpos_close(ifield);

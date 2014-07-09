@@ -18,6 +18,16 @@
 
 static const char const *format[] = {"LPS", "RPS", "LPZ", "RPZ", "NONE"};
 
+struct error_lists {
+  uint8_t erno;
+  char strerr[32];
+} ELISTS [5] = {
+    {OK, "OK\n"},
+    {ERROR, "ERROR\n"},
+    {NOMEM, "Not enough memory\n"},
+    {LENERR, "Message length not match\n"}
+};
+
 /* ----------------------------------------------------------------------------------- */
 /* crypto/ebcdic.c */
 
@@ -550,6 +560,18 @@ uint8_t* utils_bin2hex(const uint8_t *binary, uint8_t *hexa,
 
   return hexa;
 }
+
+char* util_get_error(uint8_t erno)
+{
+  char *tmp;
+  
+  tmp = strdup(ELISTS[erno].strerr);
+  if (!tmp)
+    return NULL;
+  
+  return tmp;
+}
+
 
 uint8_t* cpos_ascii2hex(const uint8_t *str)
 {

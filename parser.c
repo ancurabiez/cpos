@@ -38,7 +38,7 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
     f[2] = '\0';
 
     if (!utils_hex2bin(f, bin, sizeof(bin)))
-      return 1;
+      return ERROR;
     
     memcpy(bitmap_tmp + t, bin, 8);
     
@@ -47,25 +47,27 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
   }
   
   memcpy(bitmap, bitmap_tmp, 64);
-  return 0;
+  return OK;
 }
 
-static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg,
-                           const uint8_t *bitmap, const uint8_t f, uint8_t *buf)
+static uint8_t parser_check_get_data(struct isofield_cfg *bc,
+                  const uint8_t *msg, uint16_t msglen, const uint8_t *bitmap,
+                  struct isomsg *imsg)
 {
   uint8_t i = 1, flag = 0, bitm = 64, format;
-  uint16_t len = 0, maxlen;
+  uint16_t len = 0, maxlen, count = 0;
   uint8_t t[4];
-  uint16_t count = 0;
-  uint8_t *p = buf;
+  uint8_t buf[1024];
   
   memset(t, 0, sizeof(t));
   
   msg += 4; // skip mti
   msg += 16; // skip primary bitmap
-  
+  count += 20;
+    
   if (*bitmap == '1') { // skip secondary bitmap jika ada
     msg += 16;
+    count += 16;
     bitm += 64;
   }
 
@@ -74,102 +76,76 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc, const uint8_t *msg
       len = utils_get_field_cfg(bc, i + 1, &flag, &maxlen, &format);
 
       if (!flag) { //fixed length
-        if (f) {
-          *(p + count) = i + 1;
-          count += 1;
+        count += len;
           
-          memcpy(p + count, msg, len);
-          count += len;
+        memcpy(buf, msg, len);
+        buf[len] = '\0';
           
-          memset(p + count, 0, 1);
-          count += 1;
-        }
-        
+        imsg[i + 1].data = strdup((char*) buf);
+        if (!(imsg[i + 1].data))
+          return NOMEM;
+                   
+        imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
+        if (imsg[i + 1].len != len)
+          return LENERR;
+                
         msg += len;
       } else {
+    	count += len;
+    	
         // get data length
         memcpy(t, msg, len);
         t[len] = '\0';
         msg += len;
         len = atoi((char*) t);
         
-        if (f) {
-          *(p + count) = i + 1;
-          count += 1;
-          
-          memcpy(p + count, msg, len);
-          count += len;
-          
-          memset(p + count, 0, 1);
-          count += 1;
-        }
+        count += len;
         
+        memcpy(buf, msg, len);
+        buf[len] = '\0';
+ 
+        imsg[i + 1].data = strdup((char*) buf);
+        if (!(imsg[i + 1].data))
+          return NOMEM;
+                   
+        imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
+        if (imsg[i + 1].len != len)
+          return LENERR;
+                
         msg += len;
-      } 
-    }
-    
-    if (f) {
-      if (i == (bitm -1)) {
-        if (*msg == '\0')
-          return 0;
-      } else {
-        if (*msg == '\0')
-          return 1;
       }
     }
   }
-
-  if (!f) {
-    if (*msg != '\0')
-      return 1;
+  
+  if (count != msglen)
+    return ERROR;
+  else if (count == msglen) {
+    if (*msg == '\0')
+      return OK;
   }
-    
-  return 0;
+  
+  return ERROR;
 }
 
 uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
-                   uint8_t *msg, uint16_t msglen)
+                   uint8_t *msg, uint16_t msglen, char **err)
 {
   uint8_t bitmap[128];
-  uint16_t len, c;
-  uint8_t *buf;
-   
+  uint8_t res;
+  
   memset(bitmap, 0, 128);
 
-  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)))
-    return 1;
+  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != OK)
+    return ERROR;
   if (*(bitmap) == '1') // get sec bitmap if any
-    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)))
-      return 1;
+    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)) != OK)
+      return ERROR;
   
-  buf = malloc(msglen + 1);
-  if (!buf)
-    return 1;
+  res = parser_check_get_data(bc, msg, msglen, &bitmap[0], imsg);
+  *err = util_get_error(res);
+  
+  if ((res != OK) || !(*err))
+    return ERROR;
 
-  memset(buf, 0, msglen + 1);
-  
-  if (!parser_check_get_data(bc, msg, &bitmap[0], 1, buf))
-    return 1;
-  
-  uint8_t *p = buf;
-  
-  len = 0;
-  while (*p) {
-    c = *p;
-    p++;
-    
-    len = strlen((char*) p);
-    imsg[c].data = malloc(len + 1);
-    if (!imsg[c].data)
-      return 1;
-	        
-    memcpy(imsg[c].data, p, len + 1);
-    imsg[c].len = len;
-	      
-    p += (len +1);
-  }
-  
-  free(buf);
-  
-  return 0;
+  return OK;
 }

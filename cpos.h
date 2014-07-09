@@ -34,6 +34,17 @@ enum format {
 #define NONE NONE
 };
 
+enum error {
+  OK,
+#define OK OK
+  ERROR,
+#define ERROR ERROR
+  NOMEM,
+#define NOMEM NOMEM
+  LENERR,
+#define LENERR LENERR  
+};
+
 struct isofield_cfg {
   uint8_t flag; // (0 fixed length)
   uint16_t len;
@@ -53,6 +64,8 @@ inline uint16_t utils_get_field_cfg(struct isofield_cfg *,
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 void* utils_fill(const void* , uint16_t , uint16_t, uint8_t);
+char* util_get_error(uint8_t);
+
 
 /* Public utils (malloc(ed) must be freed)) */
 uint8_t* cpos_space_trim(const uint8_t *);
@@ -71,13 +84,13 @@ struct isomsg* cpos_msg_new();
 void cpos_msg_free(struct isomsg *);
 
 /* Public Parse */
-uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *, uint16_t);
+uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *, uint16_t, char **);
 
 /* Public Build */
 uint8_t cpos_build_set_field(struct isomsg *, const uint8_t,
                       const void *, size_t);
 uint8_t* cpos_build_msg(struct isofield_cfg *, struct isomsg *, const char *,
-                   void *, size_t, uint8_t);
+                   void *, size_t);
 
 /* Public socket */
 int cpos_socket_bind(uint16_t, uint8_t);
