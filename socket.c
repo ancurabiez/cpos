@@ -18,6 +18,8 @@
 #include <assert.h>
 #include <errno.h>
 
+#include "cpos.h"
+
 
 int cpos_socket_non_blocking(int sfd)
 {
@@ -41,7 +43,7 @@ int cpos_socket_non_blocking(int sfd)
 
 // blocking 1
 // non blocking 0
-int cpos_socket_bind(uint16_t port, uint8_t blocking)
+int cpos_socket_bind(uint16_t port, uint32_t backlog, uint8_t blocking)
 {
   struct sockaddr_in serv;
   int sock, i;
@@ -68,7 +70,7 @@ int cpos_socket_bind(uint16_t port, uint8_t blocking)
   i = bind(sock, (struct sockaddr*) &serv, sizeof(serv));
   assert (i == 0);
 
-  i = listen(sock, 10);
+  i = listen(sock, backlog);
   assert (i == 0);
 
   return sock;
@@ -109,27 +111,30 @@ int cpos_socket_connect(const char *ip, uint16_t port, uint8_t blocking)
 }
 
 int cpos_socket_recv(int sock, void *buf, int buflen,
-		             uint16_t *datalen)
+               uint16_t *datalen, uint8_t header_len, 
+               header_callback head_callback)
 {
   int size;
   uint16_t bytesleft = 0;
   
   *datalen = 0;
   
-  // getting length (first 4 bytes)
-  size = recv(sock, buf, 4, MSG_DONTWAIT);
+  // getting message len
+  size = recv(sock, buf, header_len, 0);
   
   if ((size == -1) || (size == 0))
     return size;
   
-  memset(buf + 4, '\0', 1);
-  bytesleft = atoi((char*) buf); // msg length
+  memset(buf + header_len, '\0', 1);
+  
+  // getting/translate message length to integer
+  bytesleft = head_callback(buf);
   
   if (bytesleft > buflen)
     return -1;
   
   while (bytesleft > 0) {
-    size = recv(sock, buf, bytesleft, MSG_DONTWAIT);
+    size = recv(sock, buf, bytesleft, 0);
     
     if ((size == -1) || (size == 0))
       return size;
@@ -147,7 +152,7 @@ int cpos_socket_send(int sock, void *msg, int msglen)
   int size = 0;
   
   while (msglen > 0) {
-    size = send(sock, msg, msglen, MSG_DONTWAIT);
+    size = send(sock, msg, msglen, 0);
     
     if (size == -1)
       return size;
