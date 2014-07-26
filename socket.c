@@ -112,7 +112,7 @@ int cpos_socket_connect(const char *ip, uint16_t port, uint8_t blocking)
 
 int cpos_socket_recv(int sock, void *buf, int buflen,
                uint16_t *datalen, uint8_t header_len, 
-               header_callback head_callback)
+               recv_header_callback head_callback)
 {
   int size;
   uint16_t bytesleft = 0;
