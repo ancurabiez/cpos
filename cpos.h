@@ -21,7 +21,8 @@ extern "C" {
 
 #define ISO_BIT_LEN 129
 
-typedef uint16_t (* header_callback)(uint8_t *head);
+typedef uint16_t (* recv_header_callback)(uint8_t *);
+typedef void (* build_header_callback)(uint8_t, uint8_t *, uint8_t *);
 
 enum format {
   LPS,
@@ -93,7 +94,8 @@ uint8_t cpos_parse(struct isofield_cfg *, struct isomsg *, uint8_t *,
 uint8_t cpos_build_set_field(struct isomsg *, const uint8_t,
                       const void *, size_t);
 uint8_t* cpos_build_msg(struct isofield_cfg *, struct isomsg *, const char *,
-                   void *, size_t);
+          void *, size_t,
+          void (* build_header_callback) (uint8_t, uint8_t *, uint8_t *));
 
 /* Public socket */
 int cpos_socket_bind(uint16_t, uint32_t, uint8_t);
@@ -101,7 +103,7 @@ int cpos_socket_connect(const char *, uint16_t, uint8_t);
 int cpos_socket_non_blocking(int);
 int cpos_socket_send(int, void *, int);
 int cpos_socket_recv(int, void *, int, uint16_t *, uint8_t,
-            uint16_t (* header_callback)(uint8_t *));
+            uint16_t (* recv_header_callback)(uint8_t *));
 
 #ifdef __cplusplus
 }
