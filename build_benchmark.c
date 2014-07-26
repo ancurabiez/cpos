@@ -5,6 +5,16 @@
 #include "cpos.h"
 
 
+#define HEADER_LEN 4
+
+
+void header_callback(uint8_t len, uint8_t *buf, uint8_t *hlen)
+{
+  sprintf(buf, "%04d", len);
+  
+  *hlen = HEADER_LEN;
+}
+
 int main(void)
 {
   int i;
@@ -46,7 +56,7 @@ int main(void)
     cpos_build_set_field(imsg, 61, "1339617306680", 13);
     cpos_build_set_field(imsg, 103, "054201", 6);
 
-    cpos_build_msg(ifield, imsg, "0210", buffer, sizeof(buffer));
+    cpos_build_msg(ifield, imsg, "0210", buffer, sizeof(buffer), header_callback);
     //printf("Build message: [%s]\n", buffer);
  
     cpos_msg_free(imsg);
