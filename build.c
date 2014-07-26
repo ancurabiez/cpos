@@ -70,16 +70,20 @@ uint8_t cpos_build_set_field(struct isomsg *be, const uint8_t bit,
 
 // return NULL if header error
 uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
-		           const char *mti, void *buf, size_t blen)
+                        const char *mti, void *buf, size_t blen,
+                        build_header_callback head_callback)
 {
   uint8_t bitmap[128];
   uint8_t i, bitmap_len = 0;
   uint8_t flag, format;
   uint16_t len, maxlen;
-  void *f;
+  void *f, *buftmp;
+  
     
   memset(bitmap, 0, 128);
   memset(buf, 0, blen);
+  
+  buftmp = buf;
 
   bitmap_len = build_bitmap(be, &bitmap[0], 128);
 
@@ -94,19 +98,19 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
       len = utils_get_field_cfg(bc, i +1, &flag, &maxlen, &format);
       
       if (flag == 0) {// fixed len
-    	if (len < be[i].len)
+        if (len < be[i].len)
           len = be[i].len;
-    	
-      	f = utils_fill(be[i].data, be[i].len, len, format);
+   
+        f = utils_fill(be[i].data, be[i].len, len, format);
         memcpy(buf, f, len);
-    	        
+   
         buf += len;
       }
       else { // dynamic len
-    	if ((maxlen == 0) || (maxlen < be[i].len))
+        if ((maxlen == 0) || (maxlen < be[i].len))
           maxlen = be[i].len;
-    	       
-    	sprintf((char*) buf, "%0*d", len, maxlen);
+           
+        sprintf((char*) buf, "%0*d", len, maxlen);
         buf += len;
         
         f = utils_fill(be[i].data, be[i].len, maxlen, format);
@@ -117,6 +121,14 @@ uint8_t* cpos_build_msg(struct isofield_cfg *bc, struct isomsg *be,
       
       free(f);
     }
+  }
+  
+  if (head_callback) {
+    len = strlen((char*) buftmp);
+    head_callback(len, bitmap, &i); //reuse bitmap
+    
+    memmove(buftmp + i, buftmp, len);
+    memcpy(buftmp, bitmap, i); //reuse bitmap
   }
   
   return buf;
