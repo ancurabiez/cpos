@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-Wall -fPIC
 LIBS=-lm
 SOURCES=build.c \
         parser.c \
