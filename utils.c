@@ -308,9 +308,11 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
   char *ptr, *ptr1;
   char *str, *token, *subtoken, *tokenval;
   
-  bc = calloc(ISO_BIT_LEN, sizeof(struct isofield_cfg));
+  bc = malloc(ISO_BIT_LEN * sizeof(struct isofield_cfg));
   if (!bc)
     return NULL;
+  
+  memset(bc, 0, sizeof(struct isomsg) * ISO_BIT_LEN);
   
   f = fopen(cfg_file, "r");
   if (!f) {
@@ -324,7 +326,7 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
   
     if (buf[0] != '{')
       continue;
-	
+
     bufstr++;
     tokencount = 0;
     x = 0;
@@ -354,7 +356,7 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
           l = strtol(tokenval, &ptr1, 10);
           
           if ((l > 999) || (l < 0)) {
-	        error__(line, tokencount, &bc);
+            error__(line, tokencount, &bc);
             err = 1;
             break;
           }
@@ -378,23 +380,23 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
           break;
         }
         
-    	if ((l > 999) || (l < 0) ||
+        if ((l > 999) || (l < 0) ||
             ((l > 0) && (x == 0))) {
           error__(line, tokencount, &bc);
           err = 1;
           break;
-    	}
-    	
-    	//if ((l == 0) && (x == 1)) {
+        }
+    
+        //if ((l == 0) && (x == 1)) {
         //  error__(line, tokencount, &bc);
         //  err = 1;
         //  break;
-    	//}
-    	
-    	bc[i].maxlen = l;
+        //}
+        
+        bc[i].maxlen = l;
       }
       else if (tokencount == 3) {
-    	bc[i].format = get_format(tokenval);
+        bc[i].format = get_format(tokenval);
         if ((bc[i].format == 10) ||
             ((bc[i].format == NONE) && (x == 1))) {
           error__(line, tokencount, &bc);
@@ -405,7 +407,7 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
       
       free(tokenval);
     }
-	
+
     i++;
     
     if (err) {
@@ -428,9 +430,11 @@ struct isomsg* cpos_msg_new()
 {
   struct isomsg *imsg;
   
-  imsg = calloc(ISO_BIT_LEN, sizeof(struct isomsg));
+  imsg = malloc(sizeof(struct isomsg) * ISO_BIT_LEN);
   if (!imsg)
     return NULL;
+  
+  memset(imsg, 0, sizeof(struct isomsg) * ISO_BIT_LEN);
   
   return imsg;
 }
@@ -461,7 +465,7 @@ inline uint16_t utils_get_field_cfg(struct isofield_cfg *bc,
 }
 
 void* utils_fill(const void* data, uint16_t datalen,
-		    uint16_t maxlen, uint8_t format)
+                uint16_t maxlen, uint8_t format)
 {
   void *buf = NULL;
   
