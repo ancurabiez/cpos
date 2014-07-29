@@ -8,9 +8,11 @@
 #define HEADER_LEN 4
 
 
-void header_callback(uint8_t len, uint8_t *buf, uint8_t *hlen)
+void header_callback(uint8_t len /* out */,
+                     uint8_t *buf /* in */, 
+                     uint8_t *hlen /* in */)
 {
-  sprintf(buf, "%04d", len);
+  sprintf(buf, "%0*d", HEADER_LEN, len);
   
   *hlen = HEADER_LEN;
 }
