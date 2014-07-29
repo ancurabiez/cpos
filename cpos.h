@@ -46,6 +46,10 @@ enum error {
 #define CPOS_NOMEM CPOS_NOMEM
   CPOS_LENERR,
 #define CPOS_LENERR CPOS_LENERR  
+  CPOS_PRIBITMAP,
+#define CPOS_PRIBITMAP CPOS_PRIBITMAP
+  CPOS_SECBITMAP
+#define CPOS_SECBITMAP CPOS_SECBITMAP
 };
 
 struct isofield_cfg {
@@ -63,7 +67,7 @@ struct isomsg {
 
 /* Private */
 inline uint16_t utils_get_field_cfg(struct isofield_cfg *,
-		const uint8_t bit, uint8_t *flag, uint16_t *, uint8_t *);
+          const uint8_t bit, uint8_t *flag, uint16_t *, uint8_t *);
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 void* utils_fill(const void* , uint16_t , uint16_t, uint8_t);
