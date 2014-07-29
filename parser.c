@@ -91,8 +91,8 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
                 
         msg += len;
       } else {
-    	count += len;
-    	
+        count += len;
+   
         // get data length
         memcpy(t, msg, len);
         t[len] = '\0';
@@ -135,11 +135,17 @@ uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
   
   memset(bitmap, 0, 128);
 
-  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != CPOS_OK)
+  if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != CPOS_OK) {
+    *err = util_get_error(CPOS_PRIBITMAP);
     return CPOS_ERROR;
-  if (*(bitmap) == '1') // get sec bitmap if any
-    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)) != CPOS_OK)
+  }
+  
+  if (*(bitmap) == '1') { // get sec bitmap if any
+    if (parser_get_bitmap(msg, 1, bitmap + 64, sizeof(bitmap)) != CPOS_OK) {
+      *err = util_get_error(CPOS_SECBITMAP);
       return CPOS_ERROR;
+    }
+  }
   
   res = parser_check_get_data(bc, msg, msglen, &bitmap[0], imsg);
   *err = util_get_error(res);

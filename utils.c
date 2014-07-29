@@ -21,11 +21,13 @@ static const char const *format[] = {"LPS", "RPS", "LPZ", "RPZ", "NONE"};
 struct error_lists {
   uint8_t erno;
   char strerr[32];
-} ELISTS [5] = {
+} ELISTS [6] = {
     {CPOS_OK, "OK\n"},
     {CPOS_ERROR, "ERROR\n"},
     {CPOS_NOMEM, "Not enough memory\n"},
-    {CPOS_LENERR, "Message length not match\n"}
+    {CPOS_LENERR, "Message length not match\n"},
+    {CPOS_PRIBITMAP, "Error primary bitmap\n"},
+    {CPOS_SECBITMAP, "Error secondary bitmap\n"}
 };
 
 /* ----------------------------------------------------------------------------------- */
@@ -234,7 +236,7 @@ uint8_t* cpos_zero_trim(const uint8_t *str)
   len++;
   buf[len] = '\0';
   
-  return buf;	
+  return buf;
 }
 
 uint8_t* cpos_space_trim(const uint8_t* str)
@@ -333,14 +335,14 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
     
     token = strtok_r(bufstr, "}", &ptr);
     for (str = token; ; str = NULL) {
-      tokencount++;	
+      tokencount++;
       
       subtoken = strtok_r(str, ",", &ptr);
       if (!subtoken)
         break;
            
       tokenval = (char*) cpos_space_trim((uint8_t *) subtoken);
-      	
+   
       if (tokencount == 1) {
         if (!strcmp(tokenval, "LLVAR")) {
           bc[i].flag = 1;
