@@ -66,8 +66,20 @@ struct isomsg {
 
 
 /* Private */
-inline uint16_t utils_get_field_cfg(struct isofield_cfg *,
-          const uint8_t bit, uint8_t *flag, uint16_t *, uint8_t *);
+static inline uint16_t utils_get_field_cfg(struct isofield_cfg *bc,
+                const uint8_t bit, uint8_t *flag,
+                uint16_t *maxlen, uint8_t *format)
+{
+  uint16_t len = 0;
+  
+  len = (*(bc + (bit -1))).len;
+  *flag = (*(bc + (bit -1))).flag;
+  *maxlen = (*(bc + (bit -1))).maxlen;
+  *format = (*(bc + (bit -1))).format;
+    
+  return len;
+}
+
 uint8_t* utils_hex2bin(const uint8_t *, uint8_t *, size_t);
 uint8_t* utils_bin2hex(const uint8_t *, uint8_t *, size_t);
 void* utils_fill(const void* , uint16_t , uint16_t, uint8_t);
