@@ -20,9 +20,9 @@ static uint8_t parser_get_bitmap(const uint8_t *msg, const uint8_t flag,
                           uint8_t *bitmap, const uint16_t blen)
 {
   uint8_t f[3];
-  uint8_t bin[8];
+  uint8_t bin[9];
   uint8_t i = 0, t = 0;
-  uint8_t bitmap_tmp[64];
+  uint8_t bitmap_tmp[65];
   
   memset(f, 0, sizeof(f));
   memset(bin, 0, sizeof(bin));
@@ -64,7 +64,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
   msg += 4; // skip mti
   msg += 16; // skip primary bitmap
   count += 20;
-    
+
   if (*bitmap == '1') { // skip secondary bitmap jika ada
     msg += 16;
     count += 16;
@@ -74,6 +74,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
   for (; i < bitm; i++) {
     if (*(bitmap + i) == '1') {
       len = utils_get_field_cfg(bc, i + 1, &flag, &maxlen, &format);
+      //printf("OOO [%d] [%d] [%s]\n", i + 1, len, msg);
 
       if (!flag) { //fixed length
         count += len;
@@ -88,7 +89,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
         imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
         if (imsg[i + 1].len != len)
           return CPOS_LENERR;
-                
+        
         msg += len;
       } else {
         count += len;
@@ -111,7 +112,7 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
         imsg[i + 1].len = strlen((char*) imsg[i + 1].data);
         if (imsg[i + 1].len != len)
           return CPOS_LENERR;
-                
+        
         msg += len;
       }
     }
@@ -130,10 +131,10 @@ static uint8_t parser_check_get_data(struct isofield_cfg *bc,
 uint8_t cpos_parse(struct isofield_cfg *bc, struct isomsg *imsg,
                    uint8_t *msg, uint16_t msglen, char **err)
 {
-  uint8_t bitmap[128];
+  uint8_t bitmap[129];
   uint8_t res;
   
-  memset(bitmap, 0, 128);
+  memset(bitmap, 0, 129);
 
   if (parser_get_bitmap(msg, 0, bitmap, sizeof(bitmap)) != CPOS_OK) {
     *err = util_get_error(CPOS_PRIBITMAP);
