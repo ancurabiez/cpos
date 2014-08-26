@@ -308,13 +308,13 @@ struct isofield_cfg* cpos_init(const char *cfg_file)
   long l;
   struct isofield_cfg *bc;
   char *ptr, *ptr1;
-  char *str, *token, *subtoken, *tokenval;
+  char *str, *token, *subtoken, *tokenval = NULL;
   
   bc = malloc(ISO_BIT_LEN * sizeof(struct isofield_cfg));
   if (!bc)
     return NULL;
   
-  memset(bc, 0, sizeof(struct isomsg) * ISO_BIT_LEN);
+  memset(bc, 0, sizeof(struct isofield_cfg) * ISO_BIT_LEN);
   
   f = fopen(cfg_file, "r");
   if (!f) {
@@ -452,20 +452,6 @@ void cpos_msg_free(struct isomsg *imsg)
   free(imsg);
 }
 
-inline uint16_t utils_get_field_cfg(struct isofield_cfg *bc,
-                const uint8_t bit, uint8_t *flag,
-                uint16_t *maxlen, uint8_t *format)
-{
-  uint16_t len = 0;
-  
-  len = (*(bc + (bit -1))).len;
-  *flag = (*(bc + (bit -1))).flag;
-  *maxlen = (*(bc + (bit -1))).maxlen;
-  *format = (*(bc + (bit -1))).format;
-  
-  return len;
-}
-
 void* utils_fill(const void* data, uint16_t datalen,
                 uint16_t maxlen, uint8_t format)
 {
@@ -529,9 +515,9 @@ uint8_t* utils_bin2hex(const uint8_t *binary, uint8_t *hexa,
     return NULL;
   
   uint8_t len = 0, count = 0, sum = 0, hlen = 0, c = 0;
-  char hextmp[64];
+  char hextmp[65];
   
-  memset(hextmp, 0, 64);
+  memset(hextmp, 0, 65);
   
   len = strlen((char*) binary);
   hlen = len / 4;
