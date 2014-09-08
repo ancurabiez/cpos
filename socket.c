@@ -131,7 +131,7 @@ int cpos_socket_recv(int sock, void *buf, int buflen,
   bytesleft = head_callback(buf);
   
   if (bytesleft > buflen)
-    return -1;
+    return -CPOS_NOMEM;
   
   while (bytesleft > 0) {
     size = recv(sock, buf, bytesleft, 0);
@@ -154,7 +154,10 @@ int cpos_socket_send(int sock, void *msg, int msglen)
   while (msglen > 0) {
     size = send(sock, msg, msglen, 0);
     
-    if (size == -1)
+    if (size == -1) {
+      if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+        continue;
+    } else
       return size;
     
     msglen -= size;
