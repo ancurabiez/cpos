@@ -14,8 +14,8 @@ dynamic:
 clean:
 	rm -vfr *~ *.o *.so
 install:
-	cp *.so /usr/lib
-	cp *.h /usr/include
+	install -m 644 *.so /usr/lib
+	install -m 644 *.h /usr/include
 unpack_test:
 	$(CC) unpack_benchmark.c -o unpack_benchmark ./libcpos.so
 build_test:
